@@ -8,11 +8,15 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,17 +38,24 @@ public class MainActivity extends AppCompatActivity {
     }
     private void JsonParse(){
         String url = "https://jsonplaceholder.typicode.com/users";
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(JSONArray response) {
 //                        JSONArray jsonArray = response.getJSONArray()
                         for(int i=0;i<response.length();i++)
                         {
-                            JSONObject object = response.getJSONObject(i);
-                            String name = object.getString("name");
-                            textView.append(name);
+                            try {
+                                JSONObject object = response.getJSONObject(i);
+                                String name = object.getString("name");
+                                // Access other properties as needed
+                                String email = object.getString("email");
 
+                                // Append the data to your TextView or perform other actions
+                                textView.append(name + "\n" + email + "\n\n");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
 
                     }
@@ -54,5 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+        requestQueue.add(request);
     }
 }
